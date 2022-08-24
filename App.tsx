@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, Text } from 'react-native'
 
-export const App = () => {
+export default function App() {
   const [info, setInfo] = useState('')
   useEffect(() => {
     const getInfo = async () => {
@@ -11,7 +11,7 @@ export const App = () => {
     }
 
     getInfo()
-      .catch(console.error)
+      .catch(e => console.log(e))
   }, [])
   return (
     <View style={styles.container}>
@@ -23,6 +23,7 @@ export const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 })
