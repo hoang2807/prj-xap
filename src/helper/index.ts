@@ -1,3 +1,41 @@
+class Action {
+  id: string;
+  latestFileUrl: string
+  clientVersion: number
+
+  constructor() {
+    this.id = '';
+    this.latestFileUrl = ''
+    this.clientVersion = 1
+  }
+
+  setId(id: string) {
+    this.id = id;
+  }
+
+  getId() {
+    return this.id;
+  }
+
+  setLatestFileUrl(latestFileUrl: string) {
+    this.latestFileUrl = latestFileUrl;
+  }
+
+  getLatestFileUrl() {
+    return this.latestFileUrl;
+  }
+
+  setClientVersion(clientVersion: number) {
+    this.clientVersion = clientVersion;
+  }
+
+  getClientVersion() {
+    return this.clientVersion;
+  }
+}
+
+const action = new Action();
+
 function takePicture() {
   const url = 'http://192.168.1.1/osc/commands/execute';
   fetch(url, {
@@ -9,16 +47,18 @@ function takePicture() {
       'name': 'camera.takePicture',
     }),
   })
-    .then(res => {
+    .then(async res => {
       console.log(`HTTP code: ${res.status}`);
-      res.json();
-      console.log(res.json());
+      const data = await res.json();
+      console.log('Data: ', data)
+      action.setId(data.id)
+      console.log(action.getId())
     })
-    // .then(data => console.log(JSON.stringify(data, null, 2)))
+    //    .then(data => console.log(JSON.stringify(data, null, 2)))
     .catch(error => console.error(error));
 }
 
-function setOption(options: object) {
+function setOption() {
   const url = 'http://192.168.1.1/osc/commands/execute';
   fetch(url, {
     method: 'POST',
@@ -28,7 +68,7 @@ function setOption(options: object) {
     body: JSON.stringify({
       'name': 'camera.setOptions',
       'parameters': {
-        options: options,
+        'options': action.getClientVersion(),
       },
     }),
   })
@@ -45,7 +85,7 @@ function getOption(options: object) {
   fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json;charset=utf-8',
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
       'name': 'camera.getOptions',
@@ -91,14 +131,15 @@ function oscState() {
   fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json;charset=utf-8',
+      'Content-Type': 'application/json',
     },
   })
-    .then(res => {
+    .then(async res => {
       console.log(`HTTP code: ${res.status}`);
-      res.json();
+      const data = await res.json()
+      console.log(String(data.state._latestFileUrl))
+      action.setLatestFileUrl(String(data.state._latestFileUrl))
     })
-    .then(data => console.log(data))
     .catch(error => console.error(error));
 }
 
@@ -109,10 +150,14 @@ function status() {
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
     },
+    body: JSON.stringify({
+      'id': action.getId(),
+    })
   })
     .then(res => {
       console.log(`HTTP code: ${res.status}`);
       res.json();
+      console.log(`ID status: ${action.getId()}`)
     })
     .then(data => console.log(data))
     .catch(error => console.error(error));
@@ -123,7 +168,7 @@ function listAll() {
   fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json:charset=utf-8',
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       'name': 'camera._listAll',
@@ -142,7 +187,7 @@ function startSession() {
   fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json:charset=utf-8',
+      'Content-Type': 'application/json;charset=utf-8',
     },
     body: JSON.stringify({
       'name': 'startSession',
@@ -162,7 +207,7 @@ function endSession() {
   fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json:charset=utf-8',
+      'Content-Type': 'application/json;charset=utf-8',
     },
     body: JSON.stringify({
       'name': 'camera.closeSession',
@@ -177,14 +222,33 @@ function endSession() {
     .catch(error => console.error(error));
 }
 
+function listFiles() {
+  const url = 'http:192.168.1.1/osc/commands/execute'
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8'
+    },
+    body: JSON.stringify({
+      'name': 'camera.listImages',
+      'parameters': {
+        'entryCount': 12,
+        'maxSize': 160
+      }
+    })
+  })
+}
+
 export {
   takePicture,
   setOption,
   getOption,
   listImages,
   oscState,
-  status,
   listAll,
   startSession,
   endSession,
+  listFiles,
+  status,
+  action
 };
