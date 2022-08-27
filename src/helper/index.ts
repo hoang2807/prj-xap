@@ -2,11 +2,14 @@ class Action {
   id: string;
   latestFileUrl: string
   clientVersion: number
-
+  sessionId: number
+  binaryData: string
   constructor() {
     this.id = '';
     this.latestFileUrl = ''
     this.clientVersion = 1
+    this.sessionId = 1
+    this.binaryData = ''
   }
 
   setId(id: string) {
@@ -32,6 +35,22 @@ class Action {
   getClientVersion() {
     return this.clientVersion;
   }
+
+  setSessionId(sessionId: number) {
+    this.sessionId = sessionId
+  }
+
+  getSessionId() {
+    return this.sessionId
+  }
+
+  setBinaryData(binaryData: string) {
+    this.binaryData = binaryData
+  }
+
+  getBinaryData() {
+    return this.binaryData
+  }
 }
 
 const action = new Action();
@@ -41,7 +60,7 @@ function takePicture() {
   fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json;charset=utf-8',
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       'name': 'camera.takePicture',
@@ -72,15 +91,16 @@ function setOption() {
       },
     }),
   })
-    .then(res => {
+    .then(async res => {
       console.log(`HTTP code: ${res.status}`);
-      res.json();
+      const data = await res.json();
+      console.log(`Set option: ${data}`)
     })
     .then(data => console.log(data))
     .catch(error => console.error(error));
 }
 
-function getOption(options: object) {
+function getOption() {
   const url = 'http://192.168.1.1/osc/commands/execute';
   fetch(url, {
     method: 'POST',
@@ -90,41 +110,46 @@ function getOption(options: object) {
     body: JSON.stringify({
       'name': 'camera.getOptions',
       'parameters': {
-        options: options,
+        'optionNames': [
+          'iso',
+          'isoSupport',
+          'clientVersion'
+        ],
       },
     }),
   })
-    .then(res => {
+    .then(async res => {
       console.log(`HTTP code: ${res.status}`);
-      res.json();
+      const data = await res.json();
+      console.log(`getOption: ${JSON.stringify(data)}`)
     })
-    .then(data => console.log(data))
     .catch(error => console.error(error));
 }
 
-function listImages() {
-  const url = 'http://192.168.1.1/osc/commands/execute';
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify({
-      'name': 'camera.listImages',
-      'parameters': {
-        fileType: 'all',
-        entryCount: 3,
-        includeThumb: false,
-      },
-    }),
-  })
-    .then(res => {
-      console.log(`HTTP code: ${res.status}`);
-      res.json();
-    })
-    .then(data => console.log(data))
-    .catch(error => console.error(error));
-}
+// function listImages() {
+//   const url = 'http://192.168.1.1/osc/commands/execute';
+//   fetch(url, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json;charset=utf-8',
+//     },
+//     body: JSON.stringify({
+//       'name': 'camera.listImages',
+//       'parameters': {
+//         fileType: 'all',
+//         entryCount: 3,
+//         includeThumb: false,
+//       },
+//     }),
+//   })
+//     .then(async res => {
+//       console.log(`HTTP code: ${res.status}`);
+//       const data = await res.json();
+//       console.log(`listImages: ${data}`)
+//     })
+//     .then(data => console.log(data))
+//     .catch(error => console.error(error));
+// }
 
 function oscState() {
   const url = 'http://192.168.1.1/osc/state';
@@ -154,12 +179,12 @@ function status() {
       'id': action.getId(),
     })
   })
-    .then(res => {
+    .then(async res => {
       console.log(`HTTP code: ${res.status}`);
-      res.json();
+      const data = await res.json()
+      console.log(`status: ${data}`)
       console.log(`ID status: ${action.getId()}`)
     })
-    .then(data => console.log(data))
     .catch(error => console.error(error));
 }
 
@@ -174,51 +199,11 @@ function listAll() {
       'name': 'camera._listAll',
     }),
   })
-    .then(res => {
+    .then(async res => {
       console.log(`HTTP code: ${res.status}`);
-      res.json();
+      const data = await res.json();
+      console.log(`listAll: ${data}`)
     })
-    .then(data => console.log(data))
-    .catch(error => console.error(error));
-}
-
-function startSession() {
-  const url = 'http://192.168.1.1/osc/commands';
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify({
-      'name': 'startSession',
-      'parameters': {},
-    }),
-  })
-    .then(res => {
-      console.log(`HTTP code: ${res.status}`);
-      res.json();
-    })
-    .then(data => console.log(data))
-    .catch(error => console.error(error));
-}
-
-function endSession() {
-  const url = 'http://192.168.1.1/osc/commands';
-  fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify({
-      'name': 'camera.closeSession',
-      'parameters': {},
-    }),
-  })
-    .then(res => {
-      console.log(`HTTP code: ${res.status}`);
-      res.json();
-    })
-    .then(data => console.log(data))
     .catch(error => console.error(error));
 }
 
@@ -227,28 +212,101 @@ function listFiles() {
   fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json;charset=utf-8'
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      'name': 'camera.listImages',
+      'name': 'camera.listFiles',
       'parameters': {
+        'fileType': 'all',
         'entryCount': 12,
-        'maxSize': 160
       }
     })
   })
+    .then(async res => {
+      console.log(`HTTP code: ${res.status}`)
+      const data = await res.json()
+      console.log(`listFiles: ${data}`)
+    })
+    .catch(error => console.error(error))
 }
+
+function getLivePreview() {
+  console.log(1)
+  const url = 'http://192.168.1.1/osc/commands/execute'
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      'name': 'camera.getLivePreview',
+    })
+  })
+    .then(async res => {
+      console.log(`HTTP code: ${res.status}`)
+      const data = await res.json()
+      console.log(data)
+      console.log(3)
+      action.setBinaryData(data)
+    })
+    .catch(error => console.error(error))
+  console.log(2)
+}
+
+// api version 2.0
+// function startSession() {
+//   const url = 'http://192.168.1.1/osc/commands';
+//   fetch(url, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({
+//       'name': 'camera.startSession',
+//     })
+//   })
+//     .then(async res => {
+//       console.log(`HTTP code: ${res.status}`);
+//       const data = await res.json()
+//       console.log(`Start session: ${data}`)
+//     })
+//     .catch(error => console.error(error));
+// }
+
+// function endSession() {
+//   const url = 'http://192.168.1.1/osc/commands';
+//   fetch(url, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify({
+//       'name': 'camera.closeSession',
+//       'parameters': {
+//         'sessionId': action.getSessionId(),
+//       },
+//     }),
+//   })
+//     .then(async res => {
+//       console.log(`HTTP code: ${res.status}`);
+//       const data = await res.json()
+//       console.log(`closeSession: ${data}`)
+//     })
+//     .then(data => console.log(data))
+//     .catch(error => console.error(error));
+// }
 
 export {
   takePicture,
   setOption,
   getOption,
-  listImages,
+  // listImages,
   oscState,
   listAll,
-  startSession,
-  endSession,
+  // startSession,
+  // endSession,
   listFiles,
+  getLivePreview,
   status,
   action
 };
