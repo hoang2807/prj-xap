@@ -30,7 +30,7 @@ export default function App() {
     getInfo().catch(e => console.log(e));
 
     // startSession();
-    getLivePreview()
+    // getLivePreview()
     setPreview(action.getBinaryData())
   }, []);
 
@@ -45,13 +45,11 @@ export default function App() {
       <Text>{JSON.stringify(info)}</Text>
       {/* <Image source={{ uri: url }}
         style={{ width: 300, height: 300 }} /> */}
-      <Image style={{ width: 300, height: 300, resizeMode: 'cover', borderWidth: 1, borderColor: 'red' }} source={{ uri: preview }} />
+      <Image style={{ width: 300, height: 300, resizeMode: 'cover', borderWidth: 1, borderColor: 'red' }} source={{ uri: preview !== "" ? preview : undefined }} />
       <View style={{ marginTop: 10 }}></View>
       <Button onPress={takePicture} title="take picture" />
       <View style={{ marginTop: 10 }}></View>
       <Button onPress={state} title="camera state" />
-      {/* <View style={{ marginTop: 10 }}></View>
-      <Button onPress={listImages} title="list images" /> */}
       <View style={{ marginTop: 10 }}></View>
       <Button onPress={listFiles} title="list files" />
       <View style={{ marginTop: 10 }}></View>
