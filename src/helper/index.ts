@@ -1,4 +1,4 @@
-// import fetchs from 'node-fetch'
+import RNFetchBlob from 'react-native-fetch-blob'
 
 function decode(binary: any, start = 0, end = binary.length): any {
   if (start !== 0 || end !== binary.length) {
@@ -123,7 +123,9 @@ function getOption() {
         'optionNames': [
           'iso',
           'isoSupport',
-          'clientVersion'
+          'clientVersion',
+          'previewFormat',
+          'previewFormatSupport'
         ],
       },
     }),
@@ -241,21 +243,43 @@ function listFiles() {
 }
 
 function getLivePreview() {
-  var oReq = new XMLHttpRequest();
-  oReq.open("POST", 'http://192.168.1.1/osc/commands/execute', true);
-  oReq.setRequestHeader("Content-Type", "multipart/x-mixed-replace; boundary=\"---osclivepreview---\"");
-  oReq.onreadystatechange = async function () {
-    if (oReq.readyState == 3) {
-      var x = oReq.responseText.split("---osclivepreview---");
-      console.log(oReq.status);
-      console.log(x[x.length - 1]);
-      console.log(oReq)
-    }
-  };
-  oReq.send(JSON.stringify({
-    name: "camera.getLivePreview"
-  }));
-  // console.log(1)
+  console.log(1)
+  RNFetchBlob.fetch('POST', 'http://192.168.1.1/osc/commands/execute', {
+    'boundary': '---osclivepreview---',
+    'Content-type': 'multipart/x-mixed-replace'
+  }, [
+    { 'name': 'camera.getLivePreview' }
+  ])
+    .then((res: any) => {
+      console.log(res)
+      console.log(res.base64())
+    })
+
+  // var oReq = new XMLHttpRequest();
+  // oReq.open("POST", 'http://192.168.1.1/osc/commands/execute', true);
+  // oReq.setRequestHeader("Content-Type", "multipart/x-mixed-replace; application/json; text/html;boundary=\"---osclivepreview---\"");
+  // oReq.onreadystatechange = async function () {
+  //   if (oReq.readyState == 3) {
+  //     var x = oReq.responseText.split("---osclivepreview---");
+  //     console.log(oReq.status);
+  //     console.log(x[x.length - 1]);
+  //     console.log(oReq)
+  //   }
+  //   console.log('Test: ', oReq)
+  // };
+  // oReq.onload = (event) => {
+  //   const arrayBuffer = oReq.response; // Note: not req.responseText
+  //   if (arrayBuffer) {
+  //     const byteArray = new Uint8Array(arrayBuffer);
+  //     byteArray.forEach(element => {
+  //       console.log(element)
+  //     });
+  //   }
+  // }
+  // oReq.send(JSON.stringify({
+  //   name: "camera.getLivePreview"
+  // }));
+
   // const url = 'http://192.168.1.1/osc/commands/execute'
   // fetch(url, {
   //   method: 'POST',
@@ -280,14 +304,11 @@ function getLivePreview() {
   //   // const decoder = decode(res)
   //   // const data = await res.json()
   //   // console.log(data)
-  //   // console.log(3)
   //   // action.setBinaryData(data)
   //   // })
   //   .then(async res => {
-  //     console.log(3)
   //   })
   //   .catch(error => console.error(error.stack))
-  // console.log(2)
 }
 
 // api version 2.0

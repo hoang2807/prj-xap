@@ -6,6 +6,7 @@ export default function App() {
   const [info, setInfo] = useState('');
   const [url, setUrl] = useState('https://picsum.photos/300');
   const [preview, setPreview] = useState('')
+  const [frame, setFrame] = useState('')
   useEffect(() => {
     const getInfo = async () => {
       const response = await fetch('http://192.168.1.1/osc/info');
@@ -45,7 +46,7 @@ export default function App() {
       <Text>{JSON.stringify(info)}</Text>
       {/* <Image source={{ uri: url }}
         style={{ width: 300, height: 300 }} /> */}
-      <Image style={{ width: 300, height: 300, resizeMode: 'cover', borderWidth: 1, borderColor: 'red' }} source={{ uri: preview !== "" ? preview : undefined }} />
+      <Image style={{ width: 300, height: 300, resizeMode: 'cover', borderWidth: 1, borderColor: 'red' }} source={{ uri: frame !== "" ? frame : undefined }} />
       <View style={{ marginTop: 10 }}></View>
       <Button onPress={takePicture} title="take picture" />
       <View style={{ marginTop: 10 }}></View>
